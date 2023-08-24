@@ -5,6 +5,8 @@ on:
     tags:
       - '*'
 
+  workflow_dispatch: 
+
 jobs:
   build:
     runs-on: windows-latest
@@ -23,10 +25,14 @@ jobs:
           pip install -r requirements.txt
 
       - name: Build
-        run:
-          powershell .\build.ps1
+        uses: Nuitka/Nuitka-Action@main
+        with:
+          script-name: genshin_cleaner.py
+          onefile: true
+          standalone: true
+          disable-console: false
       
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: genshin_cleaner.exe
+          files: build/genshin_cleaner.exe
