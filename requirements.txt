@@ -1,0 +1,5 @@
+colorama==0.4.6
+Nuitka==1.7.10
+ordered-set==4.1.0
+tqdm==4.66.1
+zstandard==0.21.0

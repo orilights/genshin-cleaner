@@ -1,0 +1,1 @@
+python -m nuitka --standalone --onefile --mingw64 --show-progress --show-memory genshin_cleaner.py
