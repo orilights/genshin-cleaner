@@ -4,6 +4,8 @@ import os
 
 from tqdm import tqdm
 
+VERSION = '1.0.0'
+
 pkg_list = [{
     'name': '游戏文件',
     'pkg_version': 'pkg_version',
@@ -76,7 +78,8 @@ def verify_data(data: list):
         press_anykey()
 
 
-def clean_data(filelist: list):
+def get_deletelist(filelist: list):
+    deletelist = []
     for root, dirs, files in os.walk('.'):
         for file in files:
             if file in [item['pkg_version'] for item in pkg_list]:
@@ -87,22 +90,14 @@ def clean_data(filelist: list):
                 continue
             if file.endswith('.zip'):
                 continue
-            if file.endswith('.png'):
-                continue
             if file == 'config.ini':
-                continue
-            if root.startswith('.\ScreenShot'):
                 continue
             if root.count('ScreenShot') > 1:
                 continue
             filename = os.path.join(root, file).replace('\\', '/').removeprefix('./')
             if filename not in filelist:
-                print(f'删除 {filename}')
-                try:
-                    os.remove(os.path.join(root, file))
-                except:
-                    print(f'删除 {filename} 失败, 尝试强制删除')
-                    os.system('del /f ' + os.path.join(root, file).replace('/', '\\'))
+                deletelist.append(filename)
+    return deletelist
 
 
 def press_anykey():
@@ -111,6 +106,13 @@ def press_anykey():
 
 def draw_line():
     print('-' * 30)
+
+def confirm(msg: str):
+    draw_line()
+    input_confirm = input(f'{msg} [y/n]: ')
+    if input_confirm.lower() not in ['y', 'yes']:
+        return False
+    return True
 
 
 def show_info(data: list):
@@ -192,21 +194,37 @@ def clean_gameclient():
     if input_confirm.lower() != 'y':
         return
     draw_line()
+
     print('使用注意:')
     print('1. 本工具将会删除任何不存在于游戏包信息中的文件')
     print('2. 理论上将会跳过规范保存的游戏截图(ScreenShot文件夹)、预下载文件、可执行程序，但保险起见建议备份截图文件')
     print('3. 请不要在清理过程中运行游戏程序')
     print('4. 清理结束后，第一次运行游戏时将会需要重新下载热更新文件并完整校验游戏文件')
     draw_line()
-    input_confirm = input('是否确认开始清理？[y/n]: ')
-    if input_confirm.lower() != 'y':
+    if not confirm('是否确认开始清理？'):
         return
     draw_line()
+
     filelist = []
     for pkg in pkgs:
         pkg_data = parse_data(pkg['pkg_version'])
         filelist.extend([item['remoteName'] for item in pkg_data])
-    clean_data(filelist)
+    deletelist = get_deletelist(filelist)
+    for file in deletelist:
+        print(f'{file}')
+    draw_line()
+    print(f'将删除以上 {len(deletelist)} 个文件，总大小:  {format_btyes(sum([os.path.getsize(item) for item in deletelist]))}')
+    if not confirm('[二次确认]是否确认开始清理？'):
+        return
+    draw_line()
+
+    for file in deletelist:
+        print(f'删除文件 {file}')
+        try:
+            os.remove(file)
+        except:
+            print(f'删除文件 {file} 失败, 尝试强制删除')
+            os.system('del /f ' + file.replace('/', '\\'))
 
     print('清理完毕')
 
@@ -219,7 +237,7 @@ def loop_mainmenu():
     draw_line()
     print('原神客户端清理工具')
     draw_line()
-    print('版本：1.0.0')
+    print(f'版本：{VERSION}')
     print('作者：OriLight')
     print('仓库: https://github.com/orilights/genshin-cleaner')
     draw_line()
