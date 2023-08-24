@@ -4,7 +4,7 @@ import os
 
 from tqdm import tqdm
 
-VERSION = '1.0.0'
+VERSION = '1.0.1'
 
 pkg_list = [{
     'name': '游戏文件',
