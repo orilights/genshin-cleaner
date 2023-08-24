@@ -92,7 +92,7 @@ def get_deletelist(filelist: list):
                 continue
             if file == 'config.ini':
                 continue
-            if root.count('ScreenShot') > 1:
+            if root.count('ScreenShot') >= 1:
                 continue
             filename = os.path.join(root, file).replace('\\', '/').removeprefix('./')
             if filename not in filelist:
@@ -107,10 +107,12 @@ def press_anykey():
 def draw_line():
     print('-' * 30)
 
+
 def confirm(msg: str):
-    draw_line()
     input_confirm = input(f'{msg} [y/n]: ')
-    if input_confirm.lower() not in ['y', 'yes']:
+    if input_confirm.lower() not in ['y', 'yes', '是', '确认']:
+        print('操作已取消')
+        press_anykey()
         return False
     return True
 
@@ -190,8 +192,7 @@ def clean_gameclient():
 
     print('请注意，如继续操作，将会删除不存在于上述游戏包信息中的文件')
     draw_line()
-    input_confirm = input('是否继续？[y/n]: ')
-    if input_confirm.lower() != 'y':
+    if not confirm('是否确认继续？'):
         return
     draw_line()
 
@@ -201,7 +202,7 @@ def clean_gameclient():
     print('3. 请不要在清理过程中运行游戏程序')
     print('4. 清理结束后，第一次运行游戏时将会需要重新下载热更新文件并完整校验游戏文件')
     draw_line()
-    if not confirm('是否确认开始清理？'):
+    if not confirm('是否确认开始查找可清理文件？'):
         return
     draw_line()
 
@@ -213,8 +214,12 @@ def clean_gameclient():
     for file in deletelist:
         print(f'{file}')
     draw_line()
+    if len(deletelist) == 0:
+        print('没有找到可清理的文件')
+        press_anykey()
+        return
     print(f'将删除以上 {len(deletelist)} 个文件，总大小:  {format_btyes(sum([os.path.getsize(item) for item in deletelist]))}')
-    if not confirm('[二次确认]是否确认开始清理？'):
+    if not confirm('是否确认开始清理？'):
         return
     draw_line()
 
