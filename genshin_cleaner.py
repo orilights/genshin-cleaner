@@ -211,13 +211,13 @@ def clean_gameclient():
         pkg_data = parse_data(pkg['pkg_version'])
         filelist.extend([item['remoteName'] for item in pkg_data])
     deletelist = get_deletelist(filelist)
-    for file in deletelist:
-        print(f'{file}')
-    draw_line()
     if len(deletelist) == 0:
         print('没有找到可清理的文件')
         press_anykey()
         return
+    for file in deletelist:
+        print(f'{file}')
+    draw_line()
     print(f'将删除以上 {len(deletelist)} 个文件，总大小:  {format_btyes(sum([os.path.getsize(item) for item in deletelist]))}')
     if not confirm('是否确认开始清理？'):
         return
