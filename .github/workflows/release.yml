@@ -13,6 +13,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Get Tag
+        shell: bash
+        run: echo "RELEASE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      
+      - name: Print Tag
+        shell: bash
+        run: echo ${{env.RELEASE_TAG}}
+        
+
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -21,18 +30,30 @@ jobs:
           architecture: x64
 
       - name: Install Dependencies
-        run: 
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
       - name: Build
         uses: Nuitka/Nuitka-Action@main
         with:
-          script-name: genshin_cleaner.py
+          script-name: genshin_client_tool.py
           onefile: true
           standalone: true
           disable-console: false
       
+      - name: Copy File
+        run: mkdir upload && cp build/genshin_client_tool.exe upload/genshin_client_tool.${{env.RELEASE_TAG}}.exe
+
+      - name: Upload to S3 Bucket
+        uses: shallwefootball/s3-upload-action@master
+        with:
+          source_dir: ./upload
+          destination_dir: /download/genshin_client_tool
+          endpoint: ${{ secrets.S3_ENDPOINT }}
+          aws_bucket: ${{ secrets.S3_BUCKET }}
+          aws_key_id: ${{ secrets.S3_ACCESS_KEY }}
+          aws_secret_access_key: ${{ secrets.S3_SECRET_KEY }}
+      
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: build/genshin_cleaner.exe
+          files: upload/genshin_client_tool.${{env.RELEASE_TAG}}.exe
