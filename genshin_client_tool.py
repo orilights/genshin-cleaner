@@ -33,6 +33,32 @@ pkg_list = [{
     'pkg_version': 'Audio_Korean_pkg_version',
 }]
 
+menu = [{
+    'name': '输出游戏文件信息',
+    'func': 'print_gameinfo',
+    'id': '1',
+}, {
+    'name': '校验游戏文件',
+    'func': 'verify_gameclient',
+    'id': '2',
+}, {
+    'name': '修复游戏客户端',
+    'func': 'fix_gameclient',
+    'id': '3',
+}, {
+    'name': '清理游戏客户端',
+    'func': 'clean_gameclient',
+    'id': '4',
+}, {
+    'name': '更新游戏包信息文件',
+    'func': 'update_gameclient_pkginfo',
+    'id': '5',
+}, {
+    'name': '退出程序',
+    'func': 'exit',
+    'id': '0',
+}]
+
 latest_version = None
 gameclient_info = None
 
@@ -458,30 +484,18 @@ def loop_mainmenu():
         draw_line()
         press_anykey()
         exit(0)
-    print('[1] 输出游戏文件信息')
-    print('[2] 校验游戏文件')
-    print('[3] 修复游戏客户端')
-    print('[4] 清理游戏客户端')
-    print('[5] 更新游戏包信息文件')
-    print('[0] 退出程序')
+
+    for item in menu:
+        print(f'[{item["id"]}] {item["name"]}')
     draw_line()
     input_num = input('输入数字进行对应的操作: ')
-    if input_num == '0':
-        exit(0)
-    elif input_num == '1':
-        print_gameinfo()
-    elif input_num == '2':
-        verify_gameclient()
-    elif input_num == '3':
-        fix_gameclient()
-    elif input_num == '4':
-        clean_gameclient()
-    elif input_num == '5':
-        update_gameclient_pkginfo()
-    else:
-        print('未知的输入')
-        draw_line()
-        press_anykey()
+    for item in menu:
+        if input_num == item['id']:
+            eval(item['func'])()
+            return
+    print('未知的输入')
+    draw_line()
+    press_anykey()
 
 
 if __name__ == '__main__':
