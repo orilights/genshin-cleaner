@@ -528,6 +528,9 @@ def loop_mainmenu():
     print('作者：OriLight')
     print('仓库: https://github.com/orilights/genshin-client-tool')
     draw_line()
+    print('请注意')
+    print('如出现 31-4302 数据异常无法进入游戏，将本程序从游戏根目录下删除或移动至别处即可解决')
+    draw_line()
     if get_gameclient_channel() is None:
         print('请将本工具放置于游戏根目录下运行（Yuanshen.exe/GenshinImpact.exe同级目录）')
         draw_line()
