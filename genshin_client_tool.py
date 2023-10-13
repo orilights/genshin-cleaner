@@ -6,7 +6,7 @@ import webbrowser
 import requests
 from tqdm import tqdm
 
-VERSION = '1.1.0'
+VERSION = '1.1.1'
 API_VERSIONCHECK = 'https://api.github.com/repos/orilights/genshin-client-tool/releases/latest'
 URL_RELEASE = 'https://github.com/orilights/genshin-client-tool/releases/latest'
 
