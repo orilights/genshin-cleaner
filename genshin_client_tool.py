@@ -473,6 +473,9 @@ def update_gameclient_pkginfo():
         if confirm('未找到游戏包信息文件，是否下载？'):
             draw_line()
             for pkg in pkg_list:
+                if pkg['type'] == 'audio':
+                    if not confirm(f'是否下载 {pkg["name"]} 信息文件？'):
+                        continue
                 print(f'下载 {pkg["name"]} 信息文件')
                 r = requests.get(f'{gameclient_info["decompressed_path"]}/{pkg["pkg_version"]}')
                 with open(pkg['pkg_version'], 'wb') as f:
