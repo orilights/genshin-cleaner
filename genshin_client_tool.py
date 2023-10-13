@@ -8,8 +8,45 @@ from tqdm import tqdm
 
 VERSION = '1.1.0'
 API_VERSIONCHECK = 'https://api.github.com/repos/orilights/genshin-client-tool/releases/latest'
-API_GAMECLIENTINFO = 'https://sdk-static.mihoyo.com/hk4e_cn/mdk/launcher/api/resource?key=eYd89JmJ&launcher_id=18'
 URL_RELEASE = 'https://github.com/orilights/genshin-client-tool/releases/latest'
+
+clients = {
+    'Yuanshen.exe': 'GENSHIN_CN',
+    'GenShinImpact.exe': 'GENSHIN_OS',
+}
+
+apis = {
+    'CLIENTINFO': {
+        'GENSHIN_CN': {
+            'base': 'https://sdk-static.mihoyo.com/hk4e_cn/mdk/launcher/api/resource',
+            'querys': {
+                'launcher_id': '18',
+                'key': 'eYd89JmJ',
+            }
+        },
+        'GENSHIN_OS': {
+            'base': 'https://sdk-os-static.mihoyo.com/hk4e_global/mdk/launcher/api/resource',
+            'querys': {
+                'launcher_id': '10',
+                'key': 'gcStgarh',
+            }
+        },
+        'STARRAIL_CN': {
+            'base': 'https://api-launcher-static.mihoyo.com/hkrpg_cn/mdk/launcher/api/resource',
+            'querys': {
+                'launcher_id': '33',
+                'key': '6KcVuOkbcqjJomjZ',
+            }
+        },
+        'STARRAIL_OS': {
+            'base': 'https://hkrpg-launcher-static.hoyoverse.com/hkrpg_global/mdk/launcher/api/resource',
+            'querys': {
+                'launcher_id': '35',
+                'key': 'vplOVX8Vn7cwG8yb',
+            }
+        }
+    }
+}
 
 pkg_list = [{
     'name': '游戏文件',
@@ -73,7 +110,7 @@ def get_latest_version():
 
 def get_gameclient_info():
     try:
-        r = requests.get(API_GAMECLIENTINFO, timeout=5)
+        r = requests.get(get_api('CLIENTINFO'), timeout=5)
         data = r.json()['data']
         return {
             'version': data['game']['latest']['version'],
@@ -92,12 +129,10 @@ def get_pkgs():
 
 
 def get_gameclient_channel():
-    if os.path.exists('Yuanshen.exe'):
-        return 'CN'
-    elif os.path.exists('GenshinImpact.exe'):
-        return 'OS'
-    else:
-        return None
+    for key, value in clients.items():
+        if os.path.exists(key):
+            return value
+    return None
 
 
 def get_deletelist(filelist: list):
@@ -120,6 +155,20 @@ def get_deletelist(filelist: list):
             if filename not in filelist:
                 deletelist.append(filename)
     return deletelist
+
+
+def get_api(api_name: str):
+    return get_req_url(apis[api_name][get_gameclient_channel()]['base'],
+                       apis[api_name][get_gameclient_channel()]['querys'])
+
+
+def get_req_url(base_url: str, querys: dict):
+    if len(querys.keys()) == 0:
+        return base_url
+    query_list = []
+    for key, value in querys.items():
+        query_list.append(f'{key}={value}')
+    return f'{base_url}?{"&".join(query_list)}'
 
 
 def format_btyes(size: int):
